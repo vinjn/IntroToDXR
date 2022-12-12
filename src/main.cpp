@@ -45,8 +45,8 @@ public:
 	void Init(ConfigInfo &config) 
 	{		
 		// Create a new window
-		HRESULT hr = Window::Create(config.width, config.height, config.instance, window, L"Introduction to DirectX Raytracing (DXR)");
-		Utils::Validate(hr, L"Error: failed to create window!");
+		HRESULT hr = Window::Create(config.width, config.height, config.instance, window, "Introduction to DirectX Raytracing (DXR)");
+		Utils::Validate(hr, "Error: failed to create window!");
 
 		d3d.width = config.width;
 		d3d.height = config.height;
@@ -135,18 +135,15 @@ private:
 /**
  * Program entry point.
  */
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) 
+int main(int argc, char* argv[])
 {	
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
-
 	HRESULT hr = EXIT_SUCCESS;
 	{
 		MSG msg = { 0 };
 
 		// Get the application configuration
 		ConfigInfo config;
-		hr = Utils::ParseCommandLine(lpCmdLine, config);
+		hr = Utils::ParseCommandLine(argc, argv, config);
 		if (hr != EXIT_SUCCESS) return hr;
 
 		// Initialize

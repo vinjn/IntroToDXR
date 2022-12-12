@@ -67,7 +67,7 @@ void Create_Buffer(D3D12Global &d3d, D3D12BufferCreateInfo& info, ID3D12Resource
 
 	// Create the GPU resource
 	HRESULT hr = d3d.device->CreateCommittedResource(&heapDesc, D3D12_HEAP_FLAG_NONE, &resourceDesc, info.state, nullptr, IID_PPV_ARGS(ppResource));
-	Utils::Validate(hr, L"Error: failed to create buffer resource!");
+	Utils::Validate(hr, "Error: failed to create buffer resource!");
 }
 
 /**
@@ -91,7 +91,7 @@ void Create_Texture(D3D12Global &d3d, D3D12Resources &resources, Material &mater
 
 	// Create the texture resource
 	HRESULT hr = d3d.device->CreateCommittedResource(&DefaultHeapProperties, D3D12_HEAP_FLAG_NONE, &textureDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&resources.texture));
-	Utils::Validate(hr, L"Error: failed to create texture!");
+	Utils::Validate(hr, "Error: failed to create texture!");
 #if NAME_D3D_RESOURCES
 	resources.texture->SetName(L"Texture");
 #endif
@@ -109,7 +109,7 @@ void Create_Texture(D3D12Global &d3d, D3D12Resources &resources, Material &mater
 
 	// Create the upload heap
 	hr = d3d.device->CreateCommittedResource(&UploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&resources.textureUploadResource));
-	Utils::Validate(hr, L"Error: failed to create texture upload heap!");
+	Utils::Validate(hr, "Error: failed to create texture upload heap!");
 #if NAME_D3D_RESOURCES
 	resources.textureUploadResource->SetName(L"Texture Upload Buffer");
 #endif
@@ -182,7 +182,7 @@ void Create_Vertex_Buffer(D3D12Global &d3d, D3D12Resources &resources, Model &mo
 	UINT8* pVertexDataBegin;
 	D3D12_RANGE readRange = {};
 	HRESULT hr = resources.vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
-	Utils::Validate(hr, L"Error: failed to map vertex buffer!");
+	Utils::Validate(hr, "Error: failed to map vertex buffer!");
 
 	memcpy(pVertexDataBegin, model.vertices.data(), info.size);
 	resources.vertexBuffer->Unmap(0, nullptr);
@@ -209,7 +209,7 @@ void Create_Index_Buffer(D3D12Global &d3d, D3D12Resources &resources, Model &mod
 	UINT8* pIndexDataBegin;
 	D3D12_RANGE readRange = {};
 	HRESULT hr = resources.indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin));
-	Utils::Validate(hr, L"Error: failed to map index buffer!");
+	Utils::Validate(hr, "Error: failed to map index buffer!");
 
 	memcpy(pIndexDataBegin, model.indices.data(), info.size);
 	resources.indexBuffer->Unmap(0, nullptr);
@@ -243,7 +243,7 @@ void Create_BackBuffer_RTV(D3D12Global &d3d, D3D12Resources &resources)
 	for (UINT n = 0; n < 2; n++)
 	{
 		hr = d3d.swapChain->GetBuffer(n, IID_PPV_ARGS(&d3d.backBuffer[n]));
-		Utils::Validate(hr, L"Error: failed to get swap chain buffer!");
+		Utils::Validate(hr, "Error: failed to get swap chain buffer!");
 
 		d3d.device->CreateRenderTargetView(d3d.backBuffer[n], nullptr, rtvHandle);
 
@@ -267,7 +267,7 @@ void Create_View_CB(D3D12Global &d3d, D3D12Resources &resources)
 #endif
 
 	HRESULT hr = resources.viewCB->Map(0, nullptr, reinterpret_cast<void**>(&resources.viewCBStart));
-	Utils::Validate(hr, L"Error: failed to map View constant buffer!");
+	Utils::Validate(hr, "Error: failed to map View constant buffer!");
 
 	memcpy(resources.viewCBStart, &resources.viewCBData, sizeof(resources.viewCBData));
 }
@@ -285,7 +285,7 @@ void Create_Material_CB(D3D12Global &d3d, D3D12Resources &resources, const Mater
 	resources.materialCBData.resolution = XMFLOAT4(material.textureResolution, 0.f, 0.f, 0.f);
 
 	HRESULT hr = resources.materialCB->Map(0, nullptr, reinterpret_cast<void**>(&resources.materialCBStart));
-	Utils::Validate(hr, L"Error: failed to map Material constant buffer!");
+	Utils::Validate(hr, "Error: failed to map Material constant buffer!");
 
 	memcpy(resources.materialCBStart, &resources.materialCBData, sizeof(resources.materialCBData));
 }
@@ -303,7 +303,7 @@ void Create_Descriptor_Heaps(D3D12Global &d3d, D3D12Resources &resources)
 
 	// Create the RTV heap
 	HRESULT hr = d3d.device->CreateDescriptorHeap(&rtvDesc, IID_PPV_ARGS(&resources.rtvHeap));
-	Utils::Validate(hr, L"Error: failed to create RTV descriptor heap!");
+	Utils::Validate(hr, "Error: failed to create RTV descriptor heap!");
 #if NAME_D3D_RESOURCES
 	resources.rtvHeap->SetName(L"RTV Descriptor Heap");
 #endif
@@ -394,12 +394,12 @@ void Compile_Shader(D3D12ShaderCompilerInfo &compilerInfo, D3D12ShaderInfo &info
 
 	// Load and encode the shader file
 	hr = compilerInfo.library->CreateBlobFromFile(info.filename, &code, &pShaderText);
-	Utils::Validate(hr, L"Error: failed to create blob from shader file!");
+	Utils::Validate(hr, "Error: failed to create blob from shader file!");
 
 	// Create the compiler include handler
 	CComPtr<IDxcIncludeHandler> dxcIncludeHandler;
 	hr = compilerInfo.library->CreateIncludeHandler(&dxcIncludeHandler);
-	Utils::Validate(hr, L"Error: failed to create include handler");
+	Utils::Validate(hr, "Error: failed to create include handler");
 
 	// Compile the shader
 	IDxcOperationResult* result;
@@ -415,7 +415,7 @@ void Compile_Shader(D3D12ShaderCompilerInfo &compilerInfo, D3D12ShaderInfo &info
 		dxcIncludeHandler, 
 		&result);
 
-	Utils::Validate(hr, L"Error: failed to compile shader!");
+	Utils::Validate(hr, "Error: failed to compile shader!");
 
 	// Verify the result
 	result->GetStatus(&hr);
@@ -423,7 +423,7 @@ void Compile_Shader(D3D12ShaderCompilerInfo &compilerInfo, D3D12ShaderInfo &info
 	{
 		IDxcBlobEncoding* error;
 		hr = result->GetErrorBuffer(&error);
-		Utils::Validate(hr, L"Error: failed to get shader compiler error buffer!");
+		Utils::Validate(hr, "Error: failed to get shader compiler error buffer!");
 
 		// Convert error blob to a string
 		vector<char> infoLog(error->GetBufferSize() + 1);
@@ -438,7 +438,7 @@ void Compile_Shader(D3D12ShaderCompilerInfo &compilerInfo, D3D12ShaderInfo &info
 	}
 
 	hr = result->GetResult(blob);
-	Utils::Validate(hr, L"Error: failed to get shader blob result!");
+	Utils::Validate(hr, "Error: failed to get shader blob result!");
 }
 
 /**
@@ -456,13 +456,13 @@ void Compile_Shader(D3D12ShaderCompilerInfo &compilerInfo, RtProgram &program)
 void Init_Shader_Compiler(D3D12ShaderCompilerInfo &shaderCompiler) 
 {
 	HRESULT hr = shaderCompiler.DxcDllHelper.Initialize();
-	Utils::Validate(hr, L"Failed to initialize DxCDllSupport!");
+	Utils::Validate(hr, "Failed to initialize DxCDllSupport!");
 
 	hr = shaderCompiler.DxcDllHelper.CreateInstance(CLSID_DxcCompiler, &shaderCompiler.compiler);
-	Utils::Validate(hr, L"Failed to create DxcCompiler!");
+	Utils::Validate(hr, "Failed to create DxcCompiler!");
 
 	hr = shaderCompiler.DxcDllHelper.CreateInstance(CLSID_DxcLibrary, &shaderCompiler.library);
-	Utils::Validate(hr, L"Failed to create DxcLibrary!");
+	Utils::Validate(hr, "Failed to create DxcLibrary!");
 }
 
 /**
@@ -502,7 +502,7 @@ void Create_Device(D3D12Global &d3d)
 
 	// Create a DXGI Factory
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&d3d.factory));
-	Utils::Validate(hr, L"Error: failed to create DXGI factory!");
+	Utils::Validate(hr, "Error: failed to create DXGI factory!");
 
 	// Create the device
 	d3d.adapter = nullptr;
@@ -538,7 +538,7 @@ void Create_Device(D3D12Global &d3d)
 		if (d3d.device == nullptr)
 		{
 			// Didn't find a device that supports ray tracing.
-			Utils::Validate(E_FAIL, L"Error: failed to create ray tracing device!");
+			Utils::Validate(E_FAIL, "Error: failed to create ray tracing device!");
 		}
 	}
 }
@@ -553,7 +553,7 @@ void Create_Command_Queue(D3D12Global &d3d)
 	desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
 	HRESULT hr = d3d.device->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3d.cmdQueue));
-	Utils::Validate(hr, L"Error: failed to create command queue!");
+	Utils::Validate(hr, "Error: failed to create command queue!");
 #if NAME_D3D_RESOURCES
 	d3d.cmdQueue->SetName(L"D3D12 Command Queue");
 #endif
@@ -567,7 +567,7 @@ void Create_Command_Allocator(D3D12Global &d3d)
 	for (UINT n = 0; n < 2; n++)
 	{
 		HRESULT hr = d3d.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&d3d.cmdAlloc[n]));
-		Utils::Validate(hr, L"Error: failed to create the command allocator!");
+		Utils::Validate(hr, "Error: failed to create the command allocator!");
 #if NAME_D3D_RESOURCES
 		if(n == 0) d3d.cmdAlloc[n]->SetName(L"D3D12 Command Allocator 0");
 		else d3d.cmdAlloc[n]->SetName(L"D3D12 Command Allocator 1");
@@ -582,7 +582,7 @@ void Create_CommandList(D3D12Global &d3d)
 {
 	HRESULT hr = d3d.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, d3d.cmdAlloc[d3d.frameIndex], nullptr, IID_PPV_ARGS(&d3d.cmdList));
 	hr = d3d.cmdList->Close();
-	Utils::Validate(hr, L"Error: failed to create the command list!");
+	Utils::Validate(hr, "Error: failed to create the command list!");
 #if NAME_D3D_RESOURCES
 	d3d.cmdList->SetName(L"D3D12 Command List");
 #endif
@@ -594,7 +594,7 @@ void Create_CommandList(D3D12Global &d3d)
 void Create_Fence(D3D12Global &d3d) 
 {
 	HRESULT hr = d3d.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d.fence));
-	Utils::Validate(hr, L"Error: failed to create fence!");
+	Utils::Validate(hr, "Error: failed to create fence!");
 #if NAME_D3D_RESOURCES
 	d3d.fence->SetName(L"D3D12 Fence");
 #endif
@@ -606,7 +606,7 @@ void Create_Fence(D3D12Global &d3d)
 	if (d3d.fenceEvent == nullptr) 
 	{
 		hr = HRESULT_FROM_WIN32(GetLastError());
-		Utils::Validate(hr, L"Error: failed to create fence event!");
+		Utils::Validate(hr, "Error: failed to create fence event!");
 	}
 }
 
@@ -628,15 +628,15 @@ void Create_SwapChain(D3D12Global &d3d, HWND &window)
 	// Create the swap chain
 	IDXGISwapChain1* swapChain;
 	HRESULT hr = d3d.factory->CreateSwapChainForHwnd(d3d.cmdQueue, window, &desc, nullptr, nullptr, &swapChain);
-	Utils::Validate(hr, L"Error: failed to create swap chain!");
+	Utils::Validate(hr, "Error: failed to create swap chain!");
 
 	// Associate the swap chain with a window
 	hr = d3d.factory->MakeWindowAssociation(window, DXGI_MWA_NO_ALT_ENTER);
-	Utils::Validate(hr, L"Error: failed to make window association!");
+	Utils::Validate(hr, "Error: failed to make window association!");
 
 	// Get the swap chain interface
 	hr = swapChain->QueryInterface(__uuidof(IDXGISwapChain3), reinterpret_cast<void**>(&d3d.swapChain));
-	Utils::Validate(hr, L"Error: failed to cast swap chain!");
+	Utils::Validate(hr, "Error: failed to cast swap chain!");
 
 	SAFE_RELEASE(swapChain);
 	d3d.frameIndex = d3d.swapChain->GetCurrentBackBufferIndex();
@@ -650,11 +650,11 @@ ID3D12RootSignature* Create_Root_Signature(D3D12Global &d3d, const D3D12_ROOT_SI
 	ID3DBlob* sig;
 	ID3DBlob* error;
 	HRESULT hr = D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &sig, &error);
-	Utils::Validate(hr, L"Error: failed to serialize root signature!");
+	Utils::Validate(hr, "Error: failed to serialize root signature!");
 
 	ID3D12RootSignature* pRootSig;
 	hr = d3d.device->CreateRootSignature(0, sig->GetBufferPointer(), sig->GetBufferSize(), IID_PPV_ARGS(&pRootSig));
-	Utils::Validate(hr, L"Error: failed to create root signature!");
+	Utils::Validate(hr, "Error: failed to create root signature!");
 
 	SAFE_RELEASE(sig);
 	SAFE_RELEASE(error);
@@ -668,11 +668,11 @@ void Reset_CommandList(D3D12Global &d3d)
 {
 	// Reset the command allocator for the current frame
 	HRESULT hr = d3d.cmdAlloc[d3d.frameIndex]->Reset();
-	Utils::Validate(hr, L"Error: failed to reset command allocator!");
+	Utils::Validate(hr, "Error: failed to reset command allocator!");
 
 	// Reset the command list for the current frame
 	hr = d3d.cmdList->Reset(d3d.cmdAlloc[d3d.frameIndex], nullptr);
-	Utils::Validate(hr, L"Error: failed to reset command list!");
+	Utils::Validate(hr, "Error: failed to reset command list!");
 }
 
 /*
@@ -697,7 +697,7 @@ void Present(D3D12Global &d3d)
 	if (FAILED(hr))
 	{
 		hr = d3d.device->GetDeviceRemovedReason();
-		Utils::Validate(hr, L"Error: failed to present!");
+		Utils::Validate(hr, "Error: failed to present!");
 	}
 }
 
@@ -708,11 +708,11 @@ void WaitForGPU(D3D12Global &d3d)
 {
 	// Schedule a signal command in the queue
 	HRESULT hr = d3d.cmdQueue->Signal(d3d.fence, d3d.fenceValues[d3d.frameIndex]);
-	Utils::Validate(hr, L"Error: failed to signal fence!");
+	Utils::Validate(hr, "Error: failed to signal fence!");
 
 	// Wait until the fence has been processed
 	hr = d3d.fence->SetEventOnCompletion(d3d.fenceValues[d3d.frameIndex], d3d.fenceEvent);
-	Utils::Validate(hr, L"Error: failed to set fence event!");
+	Utils::Validate(hr, "Error: failed to set fence event!");
 
 	WaitForSingleObjectEx(d3d.fenceEvent, INFINITE, FALSE);
 
@@ -728,7 +728,7 @@ void MoveToNextFrame(D3D12Global &d3d)
 	// Schedule a Signal command in the queue
 	const UINT64 currentFenceValue = d3d.fenceValues[d3d.frameIndex];
 	HRESULT hr = d3d.cmdQueue->Signal(d3d.fence, currentFenceValue);
-	Utils::Validate(hr, L"Error: failed to signal command queue!");
+	Utils::Validate(hr, "Error: failed to signal command queue!");
 
 	// Update the frame index
 	d3d.frameIndex = d3d.swapChain->GetCurrentBackBufferIndex();
@@ -737,7 +737,7 @@ void MoveToNextFrame(D3D12Global &d3d)
 	if (d3d.fence->GetCompletedValue() < d3d.fenceValues[d3d.frameIndex])
 	{
 		hr = d3d.fence->SetEventOnCompletion(d3d.fenceValues[d3d.frameIndex], d3d.fenceEvent);
-		Utils::Validate(hr, L"Error: failed to set fence value!");
+		Utils::Validate(hr, "Error: failed to set fence value!");
 
 		WaitForSingleObjectEx(d3d.fenceEvent, INFINITE, FALSE);
 	}
@@ -927,7 +927,7 @@ void Create_Top_Level_AS(D3D12Global &d3d, DXRGlobal &dxr, D3D12Resources &resou
 void Create_RayGen_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCompilerInfo &shaderCompiler)
 {
 	// Load and compile the ray generation shader
-	dxr.rgs = RtProgram(D3D12ShaderInfo(L"shaders\\RayGen.hlsl", L"", L"lib_6_3"));
+	dxr.rgs = RtProgram(D3D12ShaderInfo(L"shaders\\RayGen.hls", L"", L"lib_6_3"));
 	D3DShaders::Compile_Shader(shaderCompiler, dxr.rgs);
 
 	// Describe the ray generation root signature
@@ -977,7 +977,7 @@ void Create_RayGen_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCompiler
 void Create_Miss_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCompilerInfo &shaderCompiler)
 {
 	// Load and compile the miss shader
-	dxr.miss = RtProgram(D3D12ShaderInfo(L"shaders\\Miss.hlsl", L"", L"lib_6_3"));
+	dxr.miss = RtProgram(D3D12ShaderInfo(L"shaders\\Miss.hls", L"", L"lib_6_3"));
 	D3DShaders::Compile_Shader(shaderCompiler, dxr.miss);
 }
 
@@ -988,7 +988,7 @@ void Create_Closest_Hit_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCom
 {
 	// Load and compile the Closest Hit shader
 	dxr.hit = HitProgram(L"Hit");
-	dxr.hit.chs = RtProgram(D3D12ShaderInfo(L"shaders\\ClosestHit.hlsl", L"", L"lib_6_3"));
+	dxr.hit.chs = RtProgram(D3D12ShaderInfo(L"shaders\\ClosestHit.hls", L"", L"lib_6_3"));
 	D3DShaders::Compile_Shader(shaderCompiler, dxr.hit.chs);
 }
 
@@ -1147,14 +1147,14 @@ void Create_Pipeline_State_Object(D3D12Global &d3d, DXRGlobal &dxr)
 
 	// Create the RT Pipeline State Object (RTPSO)
 	HRESULT hr = d3d.device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&dxr.rtpso));
-	Utils::Validate(hr, L"Error: failed to create state object!");
+	Utils::Validate(hr, "Error: failed to create state object!");
 #if NAME_D3D_RESOURCES
 	dxr.rtpso->SetName(L"DXR Pipeline State Object");
 #endif
 
 	// Get the RTPSO properties
 	hr = dxr.rtpso->QueryInterface(IID_PPV_ARGS(&dxr.rtpsoInfo));
-	Utils::Validate(hr, L"Error: failed to get RTPSO info object!");
+	Utils::Validate(hr, "Error: failed to get RTPSO info object!");
 }
 
 /**
@@ -1195,7 +1195,7 @@ void Create_Shader_Table(D3D12Global &d3d, DXRGlobal &dxr, D3D12Resources &resou
 	// Map the buffer
 	uint8_t* pData;
 	HRESULT hr = dxr.shaderTable->Map(0, nullptr, (void**)&pData);
-	Utils::Validate(hr, L"Error: failed to map shader table!");
+	Utils::Validate(hr, "Error: failed to map shader table!");
 
 	// Shader Record 0 - Ray Generation program and local root parameter data (descriptor table with constant buffer and IB/VB pointers)
 	memcpy(pData, dxr.rtpsoInfo->GetShaderIdentifier(L"RayGen_12"), shaderIdSize);
@@ -1239,7 +1239,7 @@ void Create_Descriptor_Heaps(D3D12Global &d3d, DXRGlobal &dxr, D3D12Resources &r
 
 	// Create the descriptor heap
 	HRESULT hr = d3d.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&resources.descriptorHeap));
-	Utils::Validate(hr, L"Error: failed to create DXR CBV/SRV/UAV descriptor heap!");
+	Utils::Validate(hr, "Error: failed to create DXR CBV/SRV/UAV descriptor heap!");
 
 	// Get the descriptor heap handle and increment size
 	D3D12_CPU_DESCRIPTOR_HANDLE handle = resources.descriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -1339,7 +1339,7 @@ void Create_DXR_Output(D3D12Global &d3d, D3D12Resources &resources)
 
 	// Create the buffer resource
 	HRESULT hr = d3d.device->CreateCommittedResource(&DefaultHeapProperties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, IID_PPV_ARGS(&resources.DXROutput));
-	Utils::Validate(hr, L"Error: failed to create DXR output buffer!");
+	Utils::Validate(hr, "Error: failed to create DXR output buffer!");
 #if NAME_D3D_RESOURCES
 	resources.DXROutput->SetName(L"DXR Output Buffer");
 #endif

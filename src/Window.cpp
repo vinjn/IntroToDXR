@@ -59,7 +59,7 @@ namespace Window
 /**
  * Create a new window.
 */
-HRESULT Create(LONG width, LONG height, HINSTANCE& instance, HWND &window, LPCWSTR title) 
+HRESULT Create(LONG width, LONG height, HINSTANCE& instance, HWND &window, const char* title) 
 {
 	// Register the window class
 	WNDCLASSEX wcex;
@@ -72,7 +72,7 @@ HRESULT Create(LONG width, LONG height, HINSTANCE& instance, HWND &window, LPCWS
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = L"WindowClass";
+	wcex.lpszClassName = "WindowClass";
 	wcex.hIcon = nullptr;
 	wcex.hIconSm = nullptr;
 

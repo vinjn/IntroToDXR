@@ -31,13 +31,13 @@
 
 namespace Utils
 {
-	HRESULT ParseCommandLine(LPWSTR lpCmdLine, ConfigInfo &config);
+	HRESULT ParseCommandLine(int argc, char* argv[], ConfigInfo &config);
 
 	std::vector<char> ReadFile(const std::string &filename);
 
 	void LoadModel(std::string filepath, Model &model, Material &material);
 
-	void Validate(HRESULT hr, LPWSTR message);
+	void Validate(HRESULT hr, const char* message);
 
 	TextureInfo LoadTexture(std::string filepath);
 }

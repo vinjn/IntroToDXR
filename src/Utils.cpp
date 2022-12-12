@@ -75,58 +75,47 @@ namespace Utils
 // Command Line Parser
 //--------------------------------------------------------------------------------------
 
-HRESULT ParseCommandLine(LPWSTR lpCmdLine, ConfigInfo &config)
+HRESULT ParseCommandLine(int argc, char* argv[], ConfigInfo &config)
 {
-	LPWSTR* argv = NULL;
-	int argc = 0;
-
-	argv = CommandLineToArgvW(GetCommandLine(), &argc);
 	if (argv == NULL)
 	{
-		MessageBox(NULL, L"Unable to parse command line!", L"Error", MB_OK);
+		MessageBox(NULL, "Unable to parse command line!", "Error", MB_OK);
 		return E_FAIL;
 	}
 
 	if (argc > 1)
 	{
-		char str[256];
 		int i = 1;
 		while (i < argc)
 		{
-			wcstombs(str, argv[i], 256);
-
-			if (strcmp(str, "-width") == 0)
+			if (strcmp(argv[i], "-width") == 0)
 			{
 				i++;
-				wcstombs(str, argv[i], 256);
-				config.width = atoi(str);
+				config.width = atoi(argv[i]);
 				i++;
 				continue;
 			}
 
-			if (strcmp(str, "-height") == 0)
+			if (strcmp(argv[i], "-height") == 0)
 			{
 				i++;
-				wcstombs(str, argv[i], 256);
-				config.height = atoi(str);
+				config.height = atoi(argv[i]);
 				i++;
 				continue;
 			}
 
-			if (strcmp(str, "-vsync") == 0)
+			if (strcmp(argv[i], "-vsync") == 0)
 			{
 				i++;
-				wcstombs(str, argv[i], 256);
-				config.vsync = (atoi(str) > 0);
+				config.vsync = (atoi(argv[i]) > 0);
 				i++;
 				continue;
 			}
 
-			if (strcmp(str, "-model") == 0)
+			if (strcmp(argv[i], "-model") == 0)
 			{
 				i++;
-				wcstombs(str, argv[i], 256);
-				config.model = str;
+				config.model = argv[i];
 				i++;
 				continue;
 			}
@@ -136,11 +125,10 @@ HRESULT ParseCommandLine(LPWSTR lpCmdLine, ConfigInfo &config)
 	}
 	else 
 	{
-		MessageBox(NULL, L"Incorrect command line usage!", L"Error", MB_OK);
+		MessageBox(NULL, "Incorrect command line usage!", "Error", MB_OK);
 		return E_FAIL;
 	}
 
-	LocalFree(argv);
 	return S_OK;
 }
 
@@ -148,11 +136,11 @@ HRESULT ParseCommandLine(LPWSTR lpCmdLine, ConfigInfo &config)
 // Error Messaging
 //--------------------------------------------------------------------------------------
 
-void Validate(HRESULT hr, LPWSTR msg)
+void Validate(HRESULT hr, const char* msg)
 {
 	if (FAILED(hr))
 	{
-		MessageBox(NULL, msg, L"Error", MB_OK);
+		MessageBox(NULL, msg, "Error", MB_OK);
 		PostQuitMessage(EXIT_FAILURE);
 	}
 }
@@ -184,6 +172,12 @@ vector<char> ReadFile(const string &filename)
 // Model Loading
 //--------------------------------------------------------------------------------------
 
+static std::string GetBaseDir(const std::string& filepath) {
+	if (filepath.find_last_of("/\\") != std::string::npos)
+		return filepath.substr(0, filepath.find_last_of("/\\"));
+	return "";
+}
+
 void LoadModel(string filepath, Model &model, Material &material) 
 {
 	tinyobj::attrib_t attrib;
@@ -191,8 +185,18 @@ void LoadModel(string filepath, Model &model, Material &material)
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
 
+	std::string base_dir = GetBaseDir(filepath);
+	if (base_dir.empty()) {
+		base_dir = ".";
+	}
+#ifdef _WIN32
+	base_dir += "\\";
+#else
+	base_dir += "/";
+#endif
+
 	// Load the OBJ and MTL files
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filepath.c_str(), "materials\\")) 
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filepath.c_str(), base_dir.c_str()))
 	{
 		throw std::runtime_error(err);
 	}
@@ -200,7 +204,7 @@ void LoadModel(string filepath, Model &model, Material &material)
 	// Get the first material
 	// Only support a single material right now
 	material.name = materials[0].name;
-	material.texturePath = materials[0].diffuse_texname;
+	material.texturePath = base_dir + materials[0].diffuse_texname;
 
 	// Parse the model and store the unique vertices
 	unordered_map<Vertex, uint32_t> uniqueVertices = {};
