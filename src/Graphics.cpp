@@ -927,7 +927,7 @@ void Create_Top_Level_AS(D3D12Global &d3d, DXRGlobal &dxr, D3D12Resources &resou
 void Create_RayGen_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCompilerInfo &shaderCompiler)
 {
 	// Load and compile the ray generation shader
-	dxr.rgs = RtProgram(D3D12ShaderInfo(L"shaders\\RayGen.hls", L"", L"lib_6_3"));
+	dxr.rgs = RtProgram(D3D12ShaderInfo(L"shaders\\RayGen.hlsl", L"", L"lib_6_3"));
 	D3DShaders::Compile_Shader(shaderCompiler, dxr.rgs);
 
 	// Describe the ray generation root signature
@@ -977,7 +977,7 @@ void Create_RayGen_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCompiler
 void Create_Miss_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCompilerInfo &shaderCompiler)
 {
 	// Load and compile the miss shader
-	dxr.miss = RtProgram(D3D12ShaderInfo(L"shaders\\Miss.hls", L"", L"lib_6_3"));
+	dxr.miss = RtProgram(D3D12ShaderInfo(L"shaders\\Miss.hlsl", L"", L"lib_6_3"));
 	D3DShaders::Compile_Shader(shaderCompiler, dxr.miss);
 }
 
@@ -988,7 +988,7 @@ void Create_Closest_Hit_Program(D3D12Global &d3d, DXRGlobal &dxr, D3D12ShaderCom
 {
 	// Load and compile the Closest Hit shader
 	dxr.hit = HitProgram(L"Hit");
-	dxr.hit.chs = RtProgram(D3D12ShaderInfo(L"shaders\\ClosestHit.hls", L"", L"lib_6_3"));
+	dxr.hit.chs = RtProgram(D3D12ShaderInfo(L"shaders\\ClosestHit.hlsl", L"", L"lib_6_3"));
 	D3DShaders::Compile_Shader(shaderCompiler, dxr.hit.chs);
 }
 
